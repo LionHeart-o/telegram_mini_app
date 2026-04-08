@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>案件报告生成器</title>
+    <title>再乱写我就杀了你 ———— 很嗨方便的报告生成器</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -49,6 +49,22 @@
             background-color: var(--tg-theme-button-color); color: white;
             font-size: 16px; font-weight: bold; cursor: pointer;
         }
+        
+        /* Dialog styles */
+        dialog {
+            border: none;
+            border-radius: 12px;
+            padding: 0;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            max-width: 90%;
+            width: 300px;
+        }
+        
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -66,13 +82,13 @@
 
     <div class="section">
         <label>评分项目 (0-10分)</label>
-        <div class="score-row"><span>人照:</span> <input type="range" id="match" min="0" max="10" value="8"> <span class="score-val" id="v-match">8</span></div>
-        <div class="score-row"><span>颜值:</span> <input type="range" id="face" min="0" max="10" value="6" step="0.5"> <span class="score-val" id="v-face">6</span></div>
-        <div class="score-row"><span>身材:</span> <input type="range" id="body" min="0" max="10" value="8"> <span class="score-val" id="v-body">8</span></div>
-        <div class="score-row"><span>性格:</span> <input type="range" id="char" min="0" max="10" value="8"> <span class="score-val" id="v-char">8</span></div>
-        <div class="score-row"><span>上路:</span> <input type="range" id="top" min="0" max="10" value="8"> <span class="score-val" id="v-top">8</span></div>
-        <div class="score-row"><span>中路:</span> <input type="range" id="mid" min="0" max="10" value="8"> <span class="score-val" id="v-mid">8</span></div>
-        <div class="score-row"><span>综合:</span> <input type="range" id="total" min="0" max="10" value="8"> <span class="score-val" id="v-total">8</span></div>
+        <div class="score-row"><span>人照:</span> <input type="range" id="match" min="0" max="10" value="8" step="0.1"> <span class="score-val" id="v-match">8</span></div>
+        <div class="score-row"><span>颜值:</span> <input type="range" id="face" min="0" max="10" value="6" step="0.1"> <span class="score-val" id="v-face">6</span></div>
+        <div style="margin-bottom: 10px;"><span>身材:</span> <input type="text" id="body" placeholder="详细描述" style="margin-top:5px;"></div>
+        <div style="margin-bottom: 10px;"><span>性格:</span> <input type="text" id="char" placeholder="详细描述" style="margin-top:5px;"></div>
+        <div class="score-row"><span>上路:</span> <input type="range" id="top" min="0" max="10" value="8" step="0.1"> <span class="score-val" id="v-top">8</span></div>
+        <div class="score-row"><span>中路:</span> <input type="range" id="mid" min="0" max="10" value="8" step="0.1"> <span class="score-val" id="v-mid">8</span></div>
+        <div class="score-row"><span>综合:</span> <input type="range" id="total" min="0" max="10" value="8" step="0.1"> <span class="score-val" id="v-total">8</span></div>
     </div>
 
     <div class="section">
@@ -85,9 +101,27 @@
     </div>
 
     <div class="btn-group">
-        <button onclick="generateReport()">生成报告并发送</button>
+        <button onclick="generateReport()">生成并复制</button>
     </div>
 </div>
+
+<!-- Dialog elements -->
+<dialog id="alertDialog">
+    <div style="padding: 20px; text-align: center;">
+        <p id="alertMessage"></p>
+        <button onclick="document.getElementById('alertDialog').close()" style="margin-top: 15px;">确定</button>
+    </div>
+</dialog>
+
+<dialog id="confirmDialog">
+    <div style="padding: 20px; text-align: center;">
+        <p id="confirmMessage"></p>
+        <div style="display: flex; justify-content: space-around; margin-top: 15px;">
+            <button onclick="confirmResult(true)" style="flex: 1; margin: 0 5px;">确定</button>
+            <button onclick="confirmResult(false)" style="flex: 1; margin: 0 5px; background-color: #999;">取消</button>
+        </div>
+    </div>
+</dialog>
 
 <script>
     const tg = window.Telegram.WebApp;
@@ -113,6 +147,27 @@
         document.getElementById('detective').value = displayName;
     }
 
+    let confirmCallback = null;
+    
+    function showAlert(message) {
+        document.getElementById('alertMessage').textContent = message;
+        document.getElementById('alertDialog').showModal();
+    }
+    
+    function showConfirm(message, callback) {
+        confirmCallback = callback;
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmDialog').showModal();
+    }
+    
+    function confirmResult(result) {
+        document.getElementById('confirmDialog').close();
+        if (confirmCallback) {
+            confirmCallback(result);
+            confirmCallback = null;
+        }
+    }
+
     initUser();
 
     // 实时显示滑动条数值
@@ -120,44 +175,62 @@
         if (input.id === 'face') {
             input.oninput = function() {
                 const value = parseFloat(this.value);
+                const faceInput = this;
                 
                 // 限制最高分为8.5
                 if (value > 8.5) {
-                    this.value = 8.5;
+                    showAlert('你哪摸的明星，重审！😡');
+                    faceInput.value = 8.5;
                     document.getElementById('v-face').innerText = '8.5';
                     return;
                 }
                 
                 // 低于5分的提示
                 if (value < 5) {
-                    alert('😆 有福了，吃这么好');
+                    showAlert('😆 有福了，吃这么好');
                 }
                 
                 // 高于8分的确认框
                 if (value > 8) {
-                    const confirm1 = confirm('你不是又在乱给分吧？');
-                    if (!confirm1) {
-                        this.value = 6;
-                        document.getElementById('v-face').innerText = '6';
-                        return;
-                    }
-                    
-                    const confirm2 = confirm('你确定她长得像网红？');
-                    if (!confirm2) {
-                        this.value = 6;
-                        document.getElementById('v-face').innerText = '6';
-                        return;
-                    }
-                    
-                    const confirm3 = confirm('真拿你没办法');
-                    if (!confirm3) {
-                        this.value = 6;
-                        document.getElementById('v-face').innerText = '6';
-                        return;
-                    }
+                    showConfirm('你不是又在乱给分吧？', function(result1) {
+                        if (!result1) {
+                            faceInput.value = 6;
+                            document.getElementById('v-face').innerText = '6';
+                            return;
+                        }
+                        
+                        showConfirm('你确定她长得像网红？', function(result2) {
+                            if (!result2) {
+                                faceInput.value = 6;
+                                document.getElementById('v-face').innerText = '6';
+                                return;
+                            }
+                            
+                            showConfirm('真拿你没办法', function(result3) {
+                                if (!result3) {
+                                    faceInput.value = 6;
+                                    document.getElementById('v-face').innerText = '6';
+                                    return;
+                                }
+                                
+                                document.getElementById('v-face').innerText = faceInput.value;
+                            });
+                        });
+                    });
+                } else {
+                    document.getElementById('v-face').innerText = value;
+                }
+            };
+        } else if (input.id === 'total') {
+            input.oninput = function() {
+                const value = parseFloat(this.value);
+                
+                // 综合评分给6分的提示
+                if (value === 6) {
+                    showAlert('中评给6.5或者7.0，雷报那就没事了');
                 }
                 
-                document.getElementById('v-' + this.id).innerText = this.value;
+                document.getElementById('v-total').innerText = value;
             };
         } else {
             input.oninput = function() {
@@ -177,8 +250,8 @@
             cost: document.getElementById('cost').value || "0",
             match: document.getElementById('match').value,
             face: document.getElementById('face').value,
-            body: document.getElementById('body').value,
-            char: document.getElementById('char').value,
+            body: document.getElementById('body').value || "未填写",
+            char: document.getElementById('char').value || "未填写",
             top: document.getElementById('top').value,
             mid: document.getElementById('mid').value,
             total: document.getElementById('total').value,
@@ -186,18 +259,53 @@
             detective: document.getElementById('detective').value,
             contact: document.getElementById('contact').value || "未填写"
         };
+        
+        // 检查身材和性格描述
+        const bodyRegex = /^\d+$/;
+        const charRegex = /^\d+$/;
+        if (bodyRegex.test(data.body)) {
+            showAlert('身材描述不能只是数字，请提供详细描述');
+            return;
+        }
+        if (charRegex.test(data.char)) {
+            showAlert('性格描述不能只是数字，请提供详细描述');
+            return;
+        }
+        
+        // 检查综合评分9分及以上时的描述长度
+        const totalScore = parseFloat(data.total);
+        if (totalScore >= 9 && data.desc.length <= 200) {
+            showAlert('高分报告，字符数必须大于200。实在憋不出了把分改到9.0以下');
+            return;
+        }
+        
+        // 格式化数字，保留一位小数
+        const formatNumber = (value) => {
+            const num = parseFloat(value);
+            if (!isNaN(num)) {
+                return num.toFixed(1);
+            }
+            return value;
+        };
+        
+        // 应用格式化
+        const formattedMatch = formatNumber(data.match);
+        const formattedFace = formatNumber(data.face);
+        const formattedTop = formatNumber(data.top);
+        const formattedMid = formatNumber(data.mid);
+        const formattedTotal = formatNumber(data.total);
 
         const report = `#案件发生地 #${data.loc}
 #嫌疑人姓名 #${data.name}
 #日期 ${data.date}
 #消费 ${data.cost}
-#人照符合度 ${data.match}
-#颜值 ${data.face}
+#人照符合度 ${formattedMatch}
+#颜值 ${formattedFace}
 #身材 ${data.body}
 #性格 ${data.char}
-#上路 ${data.top}
-#中路 ${data.mid}
-#综合评价 ${data.total}
+#上路 ${formattedTop}
+#中路 ${formattedMid}
+#综合评价 ${formattedTotal}
 #详细体验
 ${data.desc}
 
@@ -208,8 +316,20 @@ ${data.desc}
 侦探事务所: https://t.me/sz_mmk7
 侦探事务所卷宗: https://t.me/sz_mmk_jz`;
 
-        tg.sendData(report);
+        // 复制到剪贴板
+        navigator.clipboard.writeText(report)
+            .then(() => {
+                showAlert('报告已生成并复制到剪贴板');
+            })
+            .catch(err => {
+                showAlert('复制失败，请手动复制');
+                console.error('复制失败:', err);
+            });
     }
 </script>
+    
+    <div style="text-align: center; margin-top: 30px; font-size: 12px; color: var(--tg-theme-hint-color);">
+        Powered by 李慢慢
+    </div>
 </body>
 </html>
