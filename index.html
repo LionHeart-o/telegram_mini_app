@@ -71,6 +71,12 @@
 
 <div id="report-form">
     <div class="section">
+        <label>模板导入</label>
+        <textarea id="template-input" rows="6" placeholder="粘贴模板格式的报告，点击导入按钮自动填充"></textarea>
+        <button onclick="importTemplate()" style="margin-top:10px;">导入模板</button>
+    </div>
+    
+    <div class="section">
         <label>案件信息</label>
         <input type="text" id="loc" placeholder="案件发生地">
         <input type="text" id="name" placeholder="嫌疑人姓名" style="margin-top:5px;">
@@ -197,6 +203,117 @@
         
         contactInput.value = matchedContact;
     });
+    
+    // 导入模板功能
+    function importTemplate() {
+        const templateText = document.getElementById('template-input').value;
+        if (!templateText) {
+            showAlert('请粘贴模板格式的报告');
+            return;
+        }
+        
+        // 解析模板报告
+        const parsedData = parseTemplate(templateText);
+        
+        // 填充表单
+        if (parsedData) {
+            document.getElementById('loc').value = parsedData.loc || '';
+            document.getElementById('name').value = parsedData.name || '';
+            document.getElementById('date').value = parsedData.date || '';
+            document.getElementById('cost').value = parsedData.cost || '';
+            document.getElementById('match').value = parsedData.match || 8;
+            document.getElementById('face').value = parsedData.face || 6;
+            document.getElementById('body').value = parsedData.body || '';
+            document.getElementById('char').value = parsedData.char || '';
+            document.getElementById('top').value = parsedData.top || 8;
+            document.getElementById('mid').value = parsedData.mid || 8;
+            document.getElementById('total').value = parsedData.total || 8;
+            document.getElementById('desc').value = parsedData.desc || '';
+            document.getElementById('detective').value = parsedData.detective || '';
+            document.getElementById('contact').value = parsedData.contact || '';
+            
+            // 更新滑动条显示值
+            document.getElementById('v-match').innerText = parsedData.match || 8;
+            document.getElementById('v-face').innerText = parsedData.face || 6;
+            document.getElementById('v-top').innerText = parsedData.top || 8;
+            document.getElementById('v-mid').innerText = parsedData.mid || 8;
+            document.getElementById('v-total').innerText = parsedData.total || 8;
+            
+            showAlert('模板导入成功');
+        } else {
+            showAlert('模板格式错误，请检查后重新粘贴');
+        }
+    }
+    
+    // 解析模板报告
+    function parseTemplate(text) {
+        try {
+            const data = {};
+            
+            // 提取案件发生地
+            const locMatch = text.match(/#案件发生地 #(.+)/);
+            if (locMatch) data.loc = locMatch[1].trim();
+            
+            // 提取嫌疑人姓名
+            const nameMatch = text.match(/#嫌疑人姓名 #(.+)/);
+            if (nameMatch) data.name = nameMatch[1].trim();
+            
+            // 提取日期
+            const dateMatch = text.match(/#日期 (.+)/);
+            if (dateMatch) data.date = dateMatch[1].trim();
+            
+            // 提取消费金额
+            const costMatch = text.match(/#消费 (.+)/);
+            if (costMatch) data.cost = costMatch[1].trim();
+            
+            // 提取人照符合度
+            const matchMatch = text.match(/#人照符合度 (.+)/);
+            if (matchMatch) data.match = matchMatch[1].trim();
+            
+            // 提取颜值
+            const faceMatch = text.match(/#颜值 (.+)/);
+            if (faceMatch) data.face = faceMatch[1].trim();
+            
+            // 提取身材
+            const bodyMatch = text.match(/#身材 (.+)/);
+            if (bodyMatch) data.body = bodyMatch[1].trim();
+            
+            // 提取性格
+            const charMatch = text.match(/#性格 (.+)/);
+            if (charMatch) data.char = charMatch[1].trim();
+            
+            // 提取上路
+            const topMatch = text.match(/#上路 (.+)/);
+            if (topMatch) data.top = topMatch[1].trim();
+            
+            // 提取中路
+            const midMatch = text.match(/#中路 (.+)/);
+            if (midMatch) data.mid = midMatch[1].trim();
+            
+            // 提取综合评价
+            const totalMatch = text.match(/#综合评价 (.+)/);
+            if (totalMatch) data.total = totalMatch[1].trim();
+            
+            // 提取详细体验
+            const descMatch = text.match(/#详细体验[\s\S]+?(?=#名侦探)/);
+            if (descMatch) {
+                data.desc = descMatch[0].replace('#详细体验', '').trim();
+            }
+            
+            // 提取名侦探
+            const detectiveMatch = text.match(/#名侦探🕵️ (.+)/);
+            if (detectiveMatch) data.detective = detectiveMatch[1].trim();
+            
+            // 提取店家联系方式
+            const contactMatch = text.match(/#店家联系方式: (.+)/);
+            if (contactMatch) data.contact = contactMatch[1].trim();
+            
+            return data;
+        } catch (error) {
+            console.error('解析模板失败:', error);
+            return null;
+        }
+    }
 
     // 实时显示滑动条数值
     document.querySelectorAll('input[type="range"]').forEach(input => {
