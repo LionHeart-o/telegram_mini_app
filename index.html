@@ -169,20 +169,58 @@
     }
 
     initUser();
+    
+
+    // 提取自图片的店铺与联系方式映射
+    const locationContactMap = {
+        '今喜': 'https://t.me/jinxichat',
+        '白月光': 'https://t.me/szbygmmk',
+        '富士山下': '@FSSX147',
+        '夜魅': 'https://t.me/SZYeiMeiMMK',
+        '布吉岛': '@bujidaofriends',
+        '忘忧': 'https://t.me/wangyouzy',
+        '茉莉花开': 'https://t.me/seeyoummk1',
+    };
+    
+    // 监听案件发生地输入变化，自动填充联系方式
+    document.getElementById('loc').addEventListener('input', function() {
+        const inputValue = this.value;
+        const contactInput = document.getElementById('contact');
+        
+        // 检查输入是否包含关键字
+        let matchedContact = '';
+        Object.keys(locationContactMap).forEach(location => {
+            if (inputValue.includes(location)) {
+                matchedContact = locationContactMap[location];
+            }
+        });
+        
+        contactInput.value = matchedContact;
+    });
 
     // 实时显示滑动条数值
     document.querySelectorAll('input[type="range"]').forEach(input => {
         if (input.id === 'face') {
+            // 实时更新显示值
             input.oninput = function() {
+                const value = parseFloat(this.value);
+                // 限制最高分为8.5
+                if (value > 8.5) {
+                    this.value = 8.5;
+                    document.getElementById('v-face').innerText = '8.5';
+                    return;
+                }
+                document.getElementById('v-face').innerText = value;
+            };
+            
+            // 只在用户停止拖动后进行检查
+            input.onchange = function() {
                 const value = parseFloat(this.value);
                 const faceInput = this;
                 
-                // 限制最高分为8.5
-                if (value > 8.5) {
+                // 检查是否达到了8.5分的上限
+                if (value === 8.5) {
                     showAlert('你哪摸的明星，重审！😡');
-                    faceInput.value = 8.5;
-                    document.getElementById('v-face').innerText = '8.5';
-                    return;
                 }
                 
                 // 低于5分的提示
@@ -191,7 +229,7 @@
                 }
                 
                 // 高于8分的确认框
-                if (value > 8) {
+                if (value > 8 && value <= 8.5) {
                     showConfirm('你不是又在乱给分吧？', function(result1) {
                         if (!result1) {
                             faceInput.value = 6;
@@ -212,13 +250,9 @@
                                     document.getElementById('v-face').innerText = '6';
                                     return;
                                 }
-                                
-                                document.getElementById('v-face').innerText = faceInput.value;
                             });
                         });
                     });
-                } else {
-                    document.getElementById('v-face').innerText = value;
                 }
             };
         } else if (input.id === 'total') {
