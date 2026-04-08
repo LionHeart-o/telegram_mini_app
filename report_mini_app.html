@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 TG 小程序</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #222222);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container { text-align: center; padding: 20px; }
+        button {
+            padding: 10px 20px;
+            background-color: var(--tg-theme-button-color, #248bed);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="welcome">你好！</h1>
+        <p>这是你的第一个 Telegram 小程序</p>
+        <button id="main-action">点击发送反馈</button>
+    </div>
+
+    <script>
+        // 初始化 WebApp
+        const tg = window.Telegram.WebApp;
+        tg.ready(); // 通知 Telegram 页面加载完成
+        tg.expand(); // 将小程序拉升至全屏
+
+        // 获取用户信息并展示
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('welcome').innerText = `你好, ${user.first_name}!`;
+        }
+
+        // 设置 Telegram 主按钮
+        tg.MainButton.setText("关闭小程序").show();
+        tg.MainButton.onClick(() => {
+            tg.close();
+        });
+
+        // 按钮交互：发送数据回机器人
+        document.getElementById('main-action').addEventListener('click', () => {
+            tg.sendData("用户点击了页面上的按钮");
+            // 注意：tg.sendData 仅在通过 KeyboardButton 打开的小程序中有效
+        });
+    </script>
+</body>
+</html>
