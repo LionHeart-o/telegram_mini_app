@@ -11,6 +11,7 @@
             --tg-theme-text-color: #222222;
             --tg-theme-hint-color: #999999;
             --tg-theme-button-color: #248bed;
+            --tg-theme-secondary-bg-color: #efeff4;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -20,13 +21,23 @@
         }
         .section { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         label { display: block; font-weight: bold; margin: 10px 0 5px; font-size: 14px; }
-        
+
         /* 输入框样式 */
         input[type="text"], input[type="date"], textarea {
             width: 100%; padding: 10px; border: 1px solid #ccc;
             border-radius: 8px; box-sizing: border-box; font-size: 16px;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
         }
-        
+
+        /* 只读输入框样式 */
+        input[readonly] {
+            background-color: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-hint-color);
+            border-color: #ddd;
+            cursor: not-allowed;
+        }
+
         /* 评分滑动条样式 */
         .score-row { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
         input[type="range"] { flex: 1; }
@@ -67,8 +78,8 @@
     <div class="section">
         <label>文字描述</label>
         <textarea id="desc" rows="4" placeholder="详细体验描述..."></textarea>
-        <label>名侦探🕵️</label>
-        <input type="text" id="detective" placeholder="你的代号">
+        <label>名侦探🕵️ (自动识别)</label>
+        <input type="text" id="detective" readonly>
         <label>店家联系方式</label>
         <input type="text" id="contact" placeholder="微信号/手机号">
     </div>
@@ -81,6 +92,28 @@
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
+    tg.expand();
+
+    // 初始化获取用户信息
+    function initUser() {
+        const user = tg.initDataUnsafe?.user;
+        let displayName = "未知侦探";
+
+        if (user) {
+            // 优先级：1. First + Last Name, 2. Username, 3. ID
+            const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
+            if (fullName) {
+                displayName = fullName;
+            } else if (user.username) {
+                displayName = "@" + user.username;
+            } else {
+                displayName = "ID: " + user.id;
+            }
+        }
+        document.getElementById('detective').value = displayName;
+    }
+
+    initUser();
 
     // 实时显示滑动条数值
     document.querySelectorAll('input[type="range"]').forEach(input => {
@@ -106,7 +139,7 @@
             mid: document.getElementById('mid').value,
             total: document.getElementById('total').value,
             desc: document.getElementById('desc').value || "无",
-            detective: document.getElementById('detective').value || "匿名",
+            detective: document.getElementById('detective').value,
             contact: document.getElementById('contact').value || "未填写"
         };
 
@@ -131,7 +164,6 @@ ${data.desc}
 侦探事务所: https://t.me/sz_mmk7
 侦探事务所卷宗: https://t.me/sz_mmk_jz`;
 
-        // 将生成的报告通过数据通道传回给 Bot
         tg.sendData(report);
     }
 </script>
