@@ -67,7 +67,7 @@
     <div class="section">
         <label>评分项目 (0-10分)</label>
         <div class="score-row"><span>人照:</span> <input type="range" id="match" min="0" max="10" value="8"> <span class="score-val" id="v-match">8</span></div>
-        <div class="score-row"><span>颜值:</span> <input type="range" id="face" min="0" max="10" value="8"> <span class="score-val" id="v-face">8</span></div>
+        <div class="score-row"><span>颜值:</span> <input type="range" id="face" min="0" max="10" value="6" step="0.5"> <span class="score-val" id="v-face">6</span></div>
         <div class="score-row"><span>身材:</span> <input type="range" id="body" min="0" max="10" value="8"> <span class="score-val" id="v-body">8</span></div>
         <div class="score-row"><span>性格:</span> <input type="range" id="char" min="0" max="10" value="8"> <span class="score-val" id="v-char">8</span></div>
         <div class="score-row"><span>上路:</span> <input type="range" id="top" min="0" max="10" value="8"> <span class="score-val" id="v-top">8</span></div>
@@ -117,9 +117,53 @@
 
     // 实时显示滑动条数值
     document.querySelectorAll('input[type="range"]').forEach(input => {
-        input.oninput = function() {
-            document.getElementById('v-' + this.id).innerText = this.value;
-        };
+        if (input.id === 'face') {
+            input.oninput = function() {
+                const value = parseFloat(this.value);
+                
+                // 限制最高分为8.5
+                if (value > 8.5) {
+                    this.value = 8.5;
+                    document.getElementById('v-face').innerText = '8.5';
+                    return;
+                }
+                
+                // 低于5分的提示
+                if (value < 5) {
+                    alert('😆 有福了，吃这么好');
+                }
+                
+                // 高于8分的确认框
+                if (value > 8) {
+                    const confirm1 = confirm('你不是又在乱给分吧？');
+                    if (!confirm1) {
+                        this.value = 6;
+                        document.getElementById('v-face').innerText = '6';
+                        return;
+                    }
+                    
+                    const confirm2 = confirm('你确定她长得像网红？');
+                    if (!confirm2) {
+                        this.value = 6;
+                        document.getElementById('v-face').innerText = '6';
+                        return;
+                    }
+                    
+                    const confirm3 = confirm('真拿你没办法');
+                    if (!confirm3) {
+                        this.value = 6;
+                        document.getElementById('v-face').innerText = '6';
+                        return;
+                    }
+                }
+                
+                document.getElementById('v-' + this.id).innerText = this.value;
+            };
+        } else {
+            input.oninput = function() {
+                document.getElementById('v-' + this.id).innerText = this.value;
+            };
+        }
     });
 
     // 默认日期设为今天
