@@ -70,6 +70,10 @@
 <body>
 
 <div id="report-form">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="font-size: 18px; font-weight: bold; color: var(--tg-theme-button-color);">再乱写我就杀了你 ———— 很嗨方便的报告生成器</h1>
+    </div>
+    
     <div class="section">
         <label>模板导入</label>
         <textarea id="template-input" rows="6" placeholder="粘贴模板格式的报告，点击导入按钮自动填充"></textarea>
@@ -264,45 +268,74 @@
             
             // 提取消费金额
             const costMatch = text.match(/#消费 (.+)/);
-            if (costMatch) data.cost = costMatch[1].trim();
+            if (costMatch) {
+                // 只保留数字和小数点
+                data.cost = costMatch[1].trim().replace(/[^\d.]/g, '');
+            }
             
             // 提取人照符合度
             const matchMatch = text.match(/#人照符合度 (.+)/);
-            if (matchMatch) data.match = matchMatch[1].trim();
+            if (matchMatch) {
+                // 只保留数字和小数点
+                const value = matchMatch[1].trim().replace(/[^\d.]/g, '');
+                if (value) data.match = value;
+            }
             
             // 提取颜值
             const faceMatch = text.match(/#颜值 (.+)/);
-            if (faceMatch) data.face = faceMatch[1].trim();
+            if (faceMatch) {
+                // 只保留数字和小数点
+                const value = faceMatch[1].trim().replace(/[^\d.]/g, '');
+                if (value) data.face = value;
+            }
             
             // 提取身材
             const bodyMatch = text.match(/#身材 (.+)/);
-            if (bodyMatch) data.body = bodyMatch[1].trim();
+            if (bodyMatch) {
+                // 移除数字和特殊字符，只保留文字
+                data.body = bodyMatch[1].trim().replace(/[\d\s]+/g, ' ').trim();
+            }
             
             // 提取性格
             const charMatch = text.match(/#性格 (.+)/);
-            if (charMatch) data.char = charMatch[1].trim();
+            if (charMatch) {
+                // 移除数字和特殊字符，只保留文字
+                data.char = charMatch[1].trim().replace(/[\d\s]+/g, ' ').trim();
+            }
             
             // 提取上路
             const topMatch = text.match(/#上路 (.+)/);
-            if (topMatch) data.top = topMatch[1].trim();
+            if (topMatch) {
+                // 只保留数字和小数点
+                const value = topMatch[1].trim().replace(/[^\d.]/g, '');
+                if (value) data.top = value;
+            }
             
             // 提取中路
             const midMatch = text.match(/#中路 (.+)/);
-            if (midMatch) data.mid = midMatch[1].trim();
+            if (midMatch) {
+                // 只保留数字和小数点
+                const value = midMatch[1].trim().replace(/[^\d.]/g, '');
+                if (value) data.mid = value;
+            }
             
             // 提取综合评价
             const totalMatch = text.match(/#综合评价 (.+)/);
-            if (totalMatch) data.total = totalMatch[1].trim();
+            if (totalMatch) {
+                // 只保留数字和小数点
+                const value = totalMatch[1].trim().replace(/[^\d.]/g, '');
+                if (value) data.total = value;
+            }
             
             // 提取详细体验
-            const descMatch = text.match(/#详细体验[\s\S]+?(?=#名侦探)/);
+            const descMatch = text.match(/#详细体验[\s\S]+?(?=\s*(#?(名侦探|侦探名)(?:🕵️)?))/);
             if (descMatch) {
                 data.desc = descMatch[0].replace('#详细体验', '').trim();
             }
             
             // 提取名侦探
-            const detectiveMatch = text.match(/#名侦探🕵️ (.+)/);
-            if (detectiveMatch) data.detective = detectiveMatch[1].trim();
+            const detectiveMatch = text.match(/(?:#)?(名侦探|侦探名)(?:🕵️)?\s*(.+)/);
+            if (detectiveMatch) data.detective = detectiveMatch[2].trim();
             
             // 提取店家联系方式
             const contactMatch = text.match(/#店家联系方式: (.+)/);
