@@ -113,6 +113,15 @@
     <div class="btn-group">
         <button onclick="generateReport()">生成并复制</button>
     </div>
+    
+    <!-- 报告展示区域（复制失败时显示） -->
+    <div id="report-display-section" style="display: none; margin-top: 20px;">
+        <div class="section">
+            <label>报告内容（请手动复制）</label>
+            <textarea id="report-display" rows="10" readonly style="font-family: monospace;"></textarea>
+            <button onclick="manualCopyReport()" style="margin-top:10px;">手动复制</button>
+        </div>
+    </div>
 </div>
 
 <!-- Dialog elements -->
@@ -426,7 +435,7 @@
     // 默认日期设为今天
     document.getElementById('date').valueAsDate = new Date();
 
-    function generateReport() {
+    async function generateReport() {
         const data = {
             loc: document.getElementById('loc').value || "未填写",
             name: document.getElementById('name').value || "未填写",
@@ -500,15 +509,103 @@ ${data.desc}
 侦探事务所: https://t.me/sz_mmk7
 侦探事务所卷宗: https://t.me/sz_mmk_jz`;
 
-        // 复制到剪贴板
-        navigator.clipboard.writeText(report)
-            .then(() => {
+        // 更新报告展示区域
+        document.getElementById('report-display').value = report;
+        
+        // 尝试多种复制方法
+        let copySuccess = false;
+        
+        // 方法1: 使用 navigator.clipboard（现代浏览器）
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+                await navigator.clipboard.writeText(report);
+                copySuccess = true;
                 showAlert('报告已生成并复制到剪贴板');
-            })
-            .catch(err => {
-                showAlert('复制失败，请手动复制');
-                console.error('复制失败:', err);
-            });
+                // 隐藏报告展示区域
+                document.getElementById('report-display-section').style.display = 'none';
+            } catch (err) {
+                console.error('方法1失败:', err);
+            }
+        }
+        
+        // 方法2: 使用 document.execCommand（兼容性较好）
+        if (!copySuccess) {
+            try {
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = report;
+                tempTextArea.style.position = 'fixed';
+                tempTextArea.style.opacity = '0';
+                tempTextArea.style.left = '0';
+                tempTextArea.style.top = '0';
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                tempTextArea.setSelectionRange(0, 999999);
+                copySuccess = document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+                
+                if (copySuccess) {
+                    showAlert('报告已生成并复制到剪贴板');
+                    document.getElementById('report-display-section').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('方法2失败:', err);
+            }
+        }
+        
+        // 方法3: 使用 selection API
+        if (!copySuccess) {
+            try {
+                const tempDiv = document.createElement('div');
+                tempDiv.textContent = report;
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.opacity = '0';
+                tempDiv.style.left = '0';
+                tempDiv.style.top = '0';
+                document.body.appendChild(tempDiv);
+                
+                const range = document.createRange();
+                range.selectNodeContents(tempDiv);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                copySuccess = document.execCommand('copy');
+                document.body.removeChild(tempDiv);
+                selection.removeAllRanges();
+                
+                if (copySuccess) {
+                    showAlert('报告已生成并复制到剪贴板');
+                    document.getElementById('report-display-section').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('方法3失败:', err);
+            }
+        }
+        
+        // 如果所有方法都失败，显示报告展示区域
+        if (!copySuccess) {
+            showAlert('复制失败，请手动复制下方报告');
+            document.getElementById('report-display-section').style.display = 'block';
+        }
+    }
+    
+    // 手动复制报告
+    function manualCopyReport() {
+        const reportDisplay = document.getElementById('report-display');
+        reportDisplay.select();
+        reportDisplay.setSelectionRange(0, 999999);
+        
+        try {
+            const success = document.execCommand('copy');
+            if (success) {
+                showAlert('报告已复制到剪贴板');
+            } else {
+                showAlert('复制失败，请按 Ctrl+C 或 Cmd+C 复制');
+            }
+        } catch (err) {
+            console.error('手动复制失败:', err);
+            showAlert('复制失败，请按 Ctrl+C 或 Cmd+C 复制');
+        }
     }
 </script>
     
