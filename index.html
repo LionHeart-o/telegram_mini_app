@@ -275,11 +275,10 @@
             const dateMatch = text.match(/#日期 (.+)/);
             if (dateMatch) data.date = dateMatch[1].trim();
             
-            // 提取消费金额
+            // 提取消费金额（不做处理，保持原样）
             const costMatch = text.match(/#消费 (.+)/);
             if (costMatch) {
-                // 只保留数字和小数点
-                data.cost = costMatch[1].trim().replace(/[^\d.]/g, '');
+                data.cost = costMatch[1].trim();
             }
             
             // 提取人照符合度
