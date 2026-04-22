@@ -334,7 +334,7 @@
         <label>文字描述</label>
         <textarea id="desc" rows="4" placeholder="详细体验描述..."></textarea>
         <label>名侦探🕵️ (自动识别)</label>
-        <input type="text" id="detective" readonly>
+        <input type="text" id="detective">
         <label>店家联系方式</label>
         <input type="text" id="contact" placeholder="频道/客服">
     </div>
@@ -478,7 +478,7 @@
             document.getElementById('mid').value = parsedData.mid || 8;
             document.getElementById('total').value = parsedData.total || 8;
             document.getElementById('desc').value = parsedData.desc || '';
-            // 不修改侦探名，保持自动识别的值
+            if (parsedData.detective) document.getElementById('detective').value = parsedData.detective;
             document.getElementById('contact').value = parsedData.contact || '';
             
             // 更新滑动条显示值
