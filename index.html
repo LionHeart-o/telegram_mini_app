@@ -419,23 +419,43 @@
     initUser();
 
 
-    // 提取自图片的店铺与联系方式映射
-    const locationContactMap = {
-        'kiss': '@GZkiss888',
-        '今喜': 'https://t.me/jinxichat',
-        '夜魅': '@SZ_yemei',
-        '富士山下': '@FSSX147',
-        '布吉岛': '@bujidaofriends',
-        '忘忧': 'https://t.me/wangyouzy',
-        '教恋': 'https://t.me/jiaoliansz168',
-        '桃夭': '@taoyao7628',
-        '橙子': '@qpgmmk',
-        '深藏（杭州）': 'https://t.me/bluexxoo',
-        '白月光': 'https://t.me/szbygmmkdz',
-        '秘境': '@SZmijing_kf',
-        '茉莉花开': '@fw6665555',
-        '软糖少女': '@XHX7788',
-    };
+    // 店铺与联系方式映射（从API获取）
+    let locationContactMap = {};
+    
+    // 从后端API获取店铺联系方式
+    async function fetchStoreContacts() {
+        try {
+            // 替换为你的服务器地址
+            const response = await fetch('http://你的服务器地址:8080/api/stores');
+            if (!response.ok) {
+                throw new Error('API请求失败');
+            }
+            locationContactMap = await response.json();
+            console.log('✅ 成功获取店铺联系方式:', locationContactMap);
+        } catch (error) {
+            console.error('❌ 获取店铺联系方式失败:', error);
+            // 使用默认值作为 fallback
+            locationContactMap = {
+                'kiss': '@GZkiss888',
+                '今喜': 'https://t.me/jinxichat',
+                '夜魅': '@SZ_yemei',
+                '富士山下': '@FSSX147',
+                '布吉岛': '@bujidaofriends',
+                '忘忧': 'https://t.me/wangyouzy',
+                '教恋': 'https://t.me/jiaoliansz168',
+                '桃夭': '@taoyao7628',
+                '橙子': '@qpgmmk',
+                '深藏（杭州）': 'https://t.me/bluexxoo',
+                '白月光': 'https://t.me/szbygmmkdz',
+                '秘境': '@SZmijing_kf',
+                '茉莉花开': '@fw6665555',
+                '软糖少女': '@XHX7788',
+            };
+        }
+    }
+    
+    // 初始化时获取数据
+    fetchStoreContacts();
     
     // 监听案件发生地输入变化，自动填充联系方式
     document.getElementById('loc').addEventListener('input', function() {
@@ -741,7 +761,7 @@ ${data.desc}
 #店家联系方式: ${data.contact}
 
 报告审核: @limanman886 @bayesprism
-侦探事务所: https://t.me/sz_mmk7
+侦探事务所: https://t.me/szmmk_7
 侦探事务所卷宗: https://t.me/sz_mmk_jz`;
 
         // 更新报告展示区域
