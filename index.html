@@ -84,20 +84,49 @@
         <label>案件信息</label>
         <input type="text" id="loc" placeholder="案件发生地" list="store-list">
         <datalist id="store-list">
-            <option value="kiss">
+            <option value="KK桌游">
+            <option value="Yomi">
+            <option value="meeting_you">
+            <option value="seeyou">
             <option value="今喜">
+            <option value="南希">
+            <option value="友间">
+            <option value="叮当猫">
+            <option value="向阳">
+            <option value="夕颜">
             <option value="夜魅">
+            <option value="奈万">
+            <option value="富士山">
             <option value="富士山下">
+            <option value="小黄鸭">
             <option value="布吉岛">
             <option value="忘忧">
+            <option value="恋梦园">
+            <option value="恬谧">
+            <option value="慕斯">
+            <option value="拾光">
             <option value="教恋">
+            <option value="方粥">
+            <option value="星动">
+            <option value="暮色">
             <option value="桃夭">
+            <option value="椿屋映画">
+            <option value="樱绽">
+            <option value="樱花">
             <option value="橙子">
-            <option value="深藏（杭州）">
+            <option value="涩谷">
+            <option value="甜味">
             <option value="白月光">
-            <option value="秘境">
+            <option value="简影">
             <option value="茉莉花开">
+            <option value="萤火虫">
+            <option value="蜜桃">
+            <option value="西沐">
+            <option value="西米">
+            <option value="西西猫">
             <option value="软糖少女">
+            <option value="达美">
+            <option value="青苹果">
         </datalist>
         <input type="text" id="name" placeholder="嫌疑人姓名" list="suspect-list" style="margin-top:5px;">
         <datalist id="suspect-list">
@@ -420,7 +449,51 @@
 
 
     // 店铺与联系方式映射（从API获取）
-    let locationContactMap = {};
+    let locationContactMap = {
+                'KK桌游': 'https://t.me/szkkmmk',
+                'Yomi': 'https://t.me/umilove263',
+                'meeting_you': '@mmk668866',
+                'seeyou': '@hao5566778',
+                '今喜': 'https://t.me/jinxichat',
+                '南希': 'https://t.me/Nanxitea_1',
+                '友间': 'https://t.me/FSYJMMK1',
+                '叮当猫': 'https://t.me/ddm18521',
+                '向阳': '@xiangyangkefuhao',
+                '夕颜': '@xiyannvpu',
+                '夜魅': 'https://t.me/SZYeiMeiMMK',
+                '奈万': 'https://t.me/naiwanxiaojun',
+                '富士山': '@fushishan',
+                '富士山下': '@FSSX147',
+                '小黄鸭': 'https://t.me/xiaohuangyasiying',
+                '布吉岛': '@bujidaofriends',
+                '忘忧': '@fw6665555',
+                '恋梦园': '@szmmkuu3',
+                '恬谧': '@Insever',
+                '慕斯': 'https://t.me/Mszlmmk',
+                '拾光': '@szmmkvv1',
+                '教恋': 'https://t.me/jiaoliansz',
+                '方粥': '@qddfmm',
+                '星动': 'https://t.me/szxdmmk',
+                '暮色': 'https://t.me/SZmijing_mmk',
+                '桃夭': 'https://t.me/taoyaommmk',
+                '椿屋映画': 'https://t.me/chunwu168',
+                '樱绽': 'https://t.me/ShenZhenMMKnp',
+                '樱花': 'https://t.me/SZYHMMK',
+                '橙子': 'https://t.me/qpgsymmk888',
+                '涩谷': 'https://t.me/segushaonv',
+                '甜味': 'https://t.me/twmm88',
+                '白月光': 'https://t.me/szbygmmkdz',
+                '简影': 'https://t.me/sryy555',
+                '茉莉花开': '@hao5566778',
+                '萤火虫': 'https://t.me/YHCMMK',
+                '蜜桃': 'https://t.me/mitaommk',
+                '西沐': 'https://t.me/SZXMMMK',
+                '西米': '@SZximi888',
+                '西西猫': '@fa889900',
+                '软糖少女': 'https://t.me/szytmmk',
+                '达美': '@DaMeiFA',
+                '青苹果': '@qpgmmk'
+            };
     
     // 从后端API获取店铺联系方式
     async function fetchStoreContacts() {
@@ -436,20 +509,49 @@
             console.error('❌ 获取店铺联系方式失败:', error);
             // 使用默认值作为 fallback
             locationContactMap = {
-                'kiss': '@GZkiss888',
+                'KK桌游': 'https://t.me/szkkmmk',
+                'Yomi': 'https://t.me/umilove263',
+                'meeting_you': '@mmk668866',
+                'seeyou': '@hao5566778',
                 '今喜': 'https://t.me/jinxichat',
-                '夜魅': '@SZ_yemei',
+                '南希': 'https://t.me/Nanxitea_1',
+                '友间': 'https://t.me/FSYJMMK1',
+                '叮当猫': 'https://t.me/ddm18521',
+                '向阳': '@xiangyangkefuhao',
+                '夕颜': '@xiyannvpu',
+                '夜魅': 'https://t.me/SZYeiMeiMMK',
+                '奈万': 'https://t.me/naiwanxiaojun',
+                '富士山': '@fushishan',
                 '富士山下': '@FSSX147',
+                '小黄鸭': 'https://t.me/xiaohuangyasiying',
                 '布吉岛': '@bujidaofriends',
-                '忘忧': 'https://t.me/wangyouzy',
-                '教恋': 'https://t.me/jiaoliansz168',
-                '桃夭': '@taoyao7628',
-                '橙子': '@qpgmmk',
-                '深藏（杭州）': 'https://t.me/bluexxoo',
+                '忘忧': '@fw6665555',
+                '恋梦园': '@szmmkuu3',
+                '恬谧': '@Insever',
+                '慕斯': 'https://t.me/Mszlmmk',
+                '拾光': '@szmmkvv1',
+                '教恋': 'https://t.me/jiaoliansz',
+                '方粥': '@qddfmm',
+                '星动': 'https://t.me/szxdmmk',
+                '暮色': 'https://t.me/SZmijing_mmk',
+                '桃夭': 'https://t.me/taoyaommmk',
+                '椿屋映画': 'https://t.me/chunwu168',
+                '樱绽': 'https://t.me/ShenZhenMMKnp',
+                '樱花': 'https://t.me/SZYHMMK',
+                '橙子': 'https://t.me/qpgsymmk888',
+                '涩谷': 'https://t.me/segushaonv',
+                '甜味': 'https://t.me/twmm88',
                 '白月光': 'https://t.me/szbygmmkdz',
-                '秘境': '@SZmijing_kf',
-                '茉莉花开': 'https://t.me/seeyoummk1',
-                '软糖少女': '@XHX7788',
+                '简影': 'https://t.me/sryy555',
+                '茉莉花开': '@hao5566778',
+                '萤火虫': 'https://t.me/YHCMMK',
+                '蜜桃': 'https://t.me/mitaommk',
+                '西沐': 'https://t.me/SZXMMMK',
+                '西米': '@SZximi888',
+                '西西猫': '@fa889900',
+                '软糖少女': 'https://t.me/szytmmk',
+                '达美': '@DaMeiFA',
+                '青苹果': '@qpgmmk'
             };
         }
     }
